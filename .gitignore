@@ -1,0 +1,15 @@
+# 音声・文字起こし・要約は個人のライフログ。絶対にコミットしない
+data/
+*.wav
+*.m4a
+*.opus
+*.bin
+*.txt
+!requirements.txt
+.venv/
+__pycache__/
+.env
+.DS_Store
+
+# 脆弱性の詳細など、公開しないもの
+private/
