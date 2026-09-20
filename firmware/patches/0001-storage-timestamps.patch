@@ -1,0 +1,208 @@
+From 7a7b61870d71c02a3acc6b3b90d1ab33bfc5cd21 Mon Sep 17 00:00:00 2001
+From: kou <kou@texx.io>
+Date: Mon, 21 Sep 2026 00:07:34 +0900
+Subject: [PATCH] =?UTF-8?q?feat(firmware):=20=E8=B2=AF=E3=82=81=E3=82=8B?=
+ =?UTF-8?q?=E9=9F=B3=E5=A3=B0=E3=81=AB=E6=99=82=E5=88=BB=E3=81=AE=E5=8D=B0?=
+ =?UTF-8?q?=E3=82=92=E5=85=A5=E3=82=8C=E3=82=8B=20+=20BLE=20=E3=81=A7?=
+ =?UTF-8?q?=E6=99=82=E5=88=BB=E5=90=88=E3=82=8F=E3=81=9B?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ omi/firmware/omi/src/lib/core/transport.c | 151 ++++++++++++++++++----
+ 1 file changed, 128 insertions(+), 23 deletions(-)
+
+diff --git a/omi/firmware/omi/src/lib/core/transport.c b/omi/firmware/omi/src/lib/core/transport.c
+index 1001f1bc29..bfabfd50ef 100644
+--- a/omi/firmware/omi/src/lib/core/transport.c
++++ b/omi/firmware/omi/src/lib/core/transport.c
+@@ -15,6 +15,8 @@
+ #include <zephyr/kernel.h>
+ #include <zephyr/logging/log.h>
+ #include <zephyr/sys/atomic.h>
++#include <zephyr/random/random.h>
++#include <zephyr/sys/byteorder.h>
+ #include <zephyr/sys/ring_buffer.h>
+ 
+ #include "accel.h"
+@@ -174,6 +176,85 @@ static struct bt_gatt_attr settings_service_attr[] = {
+ 
+ static struct bt_gatt_service settings_service = BT_GATT_SERVICE(settings_service_attr);
+ 
++
++// --- 時計（自前追加）-------------------------------------------------------
++// 端末に RTC はない。Mac から現在時刻を書き込んでもらい、起動からの経過時間と
++// 組み合わせて「いまの時刻」を作る。電源を切ると失われるので、繋いだら毎回入れ直す。
++#define OMI_TIME_MAGIC_0 'T'
++#define OMI_TIME_MAGIC_1 'S'
++#define OMI_TIME_MARKER_VERSION 1
++#define OMI_TIME_MARKER_PAYLOAD 16
++#define OMI_TIME_MARKER_TAG 0xFF          // 音声のかたまりは最大160バイトなので衝突しない
++#define OMI_TIME_MARKER_INTERVAL_MS 60000 // 1分ごとに印を打つ
++
++static uint64_t omi_time_base_ms = 0; // epoch(ms) - 起動からの経過(ms)
++static bool omi_time_synced = false;
++static uint32_t omi_boot_id = 0; // 起動ごとに変わる。電源の入切を後から見分けるため
++static bool omi_time_marker_pending = true;
++
++static uint64_t omi_time_now_ms(void)
++{
++    return omi_time_synced ? (omi_time_base_ms + (uint64_t) k_uptime_get()) : 0;
++}
++
++static ssize_t time_read_handler(struct bt_conn *conn,
++                                 const struct bt_gatt_attr *attr,
++                                 void *buf,
++                                 uint16_t len,
++                                 uint16_t offset)
++{
++    uint8_t payload[13];
++    uint64_t now = omi_time_now_ms();
++    payload[0] = omi_time_synced ? 1 : 0;
++    sys_put_le64(now, payload + 1);
++    sys_put_le32(omi_boot_id, payload + 9);
++    return bt_gatt_attr_read(conn, attr, buf, len, offset, payload, sizeof(payload));
++}
++
++static ssize_t time_write_handler(struct bt_conn *conn,
++                                  const struct bt_gatt_attr *attr,
++                                  const void *buf,
++                                  uint16_t len,
++                                  uint16_t offset,
++                                  uint8_t flags)
++{
++    ARG_UNUSED(conn);
++    ARG_UNUSED(attr);
++    ARG_UNUSED(offset);
++    ARG_UNUSED(flags);
++
++    if (len != sizeof(uint64_t)) {
++        LOG_WRN("time write: invalid length %d", len);
++        return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
++    }
++
++    uint64_t epoch_ms = sys_get_le64(buf);
++    omi_time_base_ms = epoch_ms - (uint64_t) k_uptime_get();
++    omi_time_synced = true;
++    omi_time_marker_pending = true; // 合わせた直後に印を1つ残す
++    LOG_INF("time synced");
++    return len;
++}
++
++static struct bt_uuid_128 time_service_uuid =
++    BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x19B10030, 0xE8F2, 0x537E, 0x4F6C, 0xD104768A1214));
++static struct bt_uuid_128 time_characteristic_uuid =
++    BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x19B10031, 0xE8F2, 0x537E, 0x4F6C, 0xD104768A1214));
++
++static struct bt_gatt_attr time_service_attr[] = {
++    BT_GATT_PRIMARY_SERVICE(&time_service_uuid),
++    BT_GATT_CHARACTERISTIC(&time_characteristic_uuid.uuid,
++                           BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE,
++                           BT_GATT_PERM_READ | BT_GATT_PERM_WRITE,
++                           time_read_handler,
++                           time_write_handler,
++                           NULL),
++};
++
++static struct bt_gatt_service time_service = BT_GATT_SERVICE(time_service_attr);
++
++// --- ここまで時計 ----------------------------------------------------------
++
+ // --- Features Service ---
+ static struct bt_uuid_128 features_service_uuid =
+     BT_UUID_INIT_128(BT_UUID_128_ENCODE(0x19B10020, 0xE8F2, 0x537E, 0x4F6C, 0xD104768A1214));
+@@ -717,36 +798,57 @@ static uint16_t buffer_offset = 0;
+ 
+ #ifdef CONFIG_OMI_ENABLE_OFFLINE_STORAGE
+ static uint8_t storage_temp_data[MAX_WRITE_SIZE];
+-bool write_to_storage(void)
++static int64_t omi_last_marker_uptime = -OMI_TIME_MARKER_INTERVAL_MS;
++
++// 1件（[長さ][中身]）を 440 バイトのページに詰める。入り切らなければページを書き出す。
++// 余りは 0 で埋める。読む側は長さ 0 を「このページはここまで」と解釈する。
++static void storage_append_entry(uint8_t tag, const uint8_t *data, uint8_t data_len)
+ {
+-    uint8_t *buffer = tx_buffer + 2;
+-    uint8_t packet_size = (uint8_t) (tx_buffer_size + OPUS_PREFIX_LENGTH);
++    uint16_t need = (uint16_t) data_len + 1;
+ 
+-    // buffer_offset = buffer_offset+amount_to_fill;
+-    // check if adding the new packet will cause a overflow
+-    if (buffer_offset + packet_size > MAX_WRITE_SIZE - 1) {
++    if (buffer_offset + need > MAX_WRITE_SIZE) {
++        memset(storage_temp_data + buffer_offset, 0, MAX_WRITE_SIZE - buffer_offset);
++        write_to_file(storage_temp_data, MAX_WRITE_SIZE);
++        buffer_offset = 0;
++    }
++
++    storage_temp_data[buffer_offset] = tag;
++    if (data_len > 0) {
++        memcpy(storage_temp_data + buffer_offset + 1, data, data_len);
++    }
++    buffer_offset += need;
++}
+ 
+-        storage_temp_data[buffer_offset] = tx_buffer_size;
+-        uint8_t *write_ptr = storage_temp_data;
+-        write_to_file(write_ptr, MAX_WRITE_SIZE);
++// 時刻の印: [0xFF]['T']['S'][版][同期済み][起動ID 4][起動からの経過ms 4][epoch秒 4]
++static void storage_write_time_marker(void)
++{
++    uint8_t payload[OMI_TIME_MARKER_PAYLOAD];
++    int64_t uptime = k_uptime_get();
++    uint64_t now_ms = omi_time_now_ms();
++
++    payload[0] = OMI_TIME_MAGIC_0;
++    payload[1] = OMI_TIME_MAGIC_1;
++    payload[2] = OMI_TIME_MARKER_VERSION;
++    payload[3] = omi_time_synced ? 1 : 0;
++    sys_put_le32(omi_boot_id, payload + 4);
++    sys_put_le32((uint32_t) uptime, payload + 8);
++    sys_put_le32((uint32_t) (now_ms / 1000), payload + 12);
++
++    storage_append_entry(OMI_TIME_MARKER_TAG, payload, sizeof(payload));
++    omi_last_marker_uptime = uptime;
++    omi_time_marker_pending = false;
++}
+ 
+-        buffer_offset = packet_size;
+-        storage_temp_data[0] = tx_buffer_size;
+-        memcpy(storage_temp_data + 1, buffer, tx_buffer_size);
++bool write_to_storage(void)
++{
++    uint8_t *buffer = tx_buffer + RING_BUFFER_HEADER_SIZE;
+ 
+-    } else if (buffer_offset + packet_size == MAX_WRITE_SIZE - 1) {
+-        // exact frame needed
+-        storage_temp_data[buffer_offset] = tx_buffer_size;
+-        memcpy(storage_temp_data + buffer_offset + 1, buffer, tx_buffer_size);
+-        buffer_offset = 0;
+-        uint8_t *write_ptr = (uint8_t *) storage_temp_data;
+-        write_to_file(write_ptr, MAX_WRITE_SIZE);
+-    } else {
+-        storage_temp_data[buffer_offset] = tx_buffer_size;
+-        memcpy(storage_temp_data + buffer_offset + 1, buffer, tx_buffer_size);
+-        buffer_offset = buffer_offset + packet_size;
++    if (omi_time_marker_pending || (k_uptime_get() - omi_last_marker_uptime) >= OMI_TIME_MARKER_INTERVAL_MS) {
++        storage_write_time_marker();
+     }
+ 
++    storage_append_entry((uint8_t) tx_buffer_size, buffer, (uint8_t) tx_buffer_size);
++
+ #ifdef CONFIG_OMI_ENABLE_MONITOR
+     monitor_inc_storage_write();
+ #endif
+@@ -952,6 +1054,9 @@ int transport_start()
+     bt_gatt_service_register(&settings_service);
+     bt_gatt_service_register(&features_service);
+ 
++    omi_boot_id = sys_rand32_get(); // 電源の入切を後から見分けるため
++    bt_gatt_service_register(&time_service);
++
+ #ifdef CONFIG_OMI_ENABLE_OFFLINE_STORAGE
+     // Register storage service for offline audio
+     memset(storage_temp_data, 0, OPUS_PADDED_LENGTH * 4);
+-- 
+2.50.1 (Apple Git-155)
+
