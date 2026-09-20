@@ -29,6 +29,7 @@
 
 - [docs/roadmap.md](docs/roadmap.md) — **やりたいこと・マイルストーン・分からないこと・検証マトリクス**
 - [docs/findings.md](docs/findings.md) — 分かったこと（概要）
+- [docs/firmware-build.md](docs/firmware-build.md) — ファームを自分でビルドする（P0・実機には書き込まない）
 - [docs/macbook-setup.md](docs/macbook-setup.md) — **MacBook で続きを始める手順**
 - [docs/learnings.md](docs/learnings.md) — 詰まったこと・学び
 
