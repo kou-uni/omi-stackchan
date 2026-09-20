@@ -41,12 +41,24 @@ nrfutil toolchain-manager launch --ncs-version v2.9.0 --shell
 west build -b omi/nrf5340/cpuapp ../omi --sysbuild -- -DBOARD_ROOT=$HOME/omi-upstream/omi/firmware
 ```
 
-## 4. 出来たものの確認（P0 の完了条件）
+## 4. 出来たものの確認（P0 の完了条件）— ✅ 2026-09-20 達成
 
-- [ ] ビルドが最後まで通る
-- [ ] 無線更新用のパッケージ（`build/dfu_application.zip`）ができる
-- [ ] その中身（対象機種・版・構成）が、配布されている純正のものと一致する
-- [ ] **ここで止める。実機には書き込まない**
+- [x] ビルドが最後まで通る
+- [x] 無線更新用のパッケージ（`build/dfu_application.zip`）ができる
+- [x] 構成が配布版と一致（アプリ 793,396 バイト / 無線側 175,092 バイト、対象機種・版とも同じ）
+- [x] **アプリ本体のイメージは、配布版と中身まで完全に一致**（digest `7ec3b911…`）
+      → 無線側（ipc_radio）だけは digest が違う。ビルド環境の差と見ている（要確認）
+- [x] ここで止める。実機には書き込んでいない
+
+### 手元の環境でハマったこと
+
+| 症状 | 原因 | 回避 |
+|---|---|---|
+| `nrfutil toolchain-manager install` が無言で止まる（CPU も使わない） | macOS のキーチェーンを読みに行き、画面に出ない確認待ちになる | 配布物を直接ダウンロードし、Nordic 公開の SHA512 で照合して展開 |
+| 展開したツールチェーンの python / west が動かない | `/opt/nordic/ncs/toolchains/<hash>` に置かれる前提で固定されている | コンパイラだけ使い、python と west は手元の venv（`~/ncs/venv`）で用意 |
+| CMake が configure に失敗 | Homebrew の CMake 4 系は NCS 2.9 に新しすぎる | venv に `cmake==3.31.6` を入れて使う |
+
+環境は `tools/ncs-env.sh` に固めてある（`source tools/ncs-env.sh`）。
 
 ## 5. この先（イベント後）
 
