@@ -23,7 +23,7 @@ import re
 import urllib.request
 from pathlib import Path
 
-from common import OLLAMA_HOST
+from common import ollama_host
 
 TEACHER = "qwen2.5:32b"  # 文章を作る役（Ollama）
 TEACHER_JUDGE = "mlx-community/Qwen2.5-32B-Instruct-4bit"  # 判定する役（MLX・確率を直接読む）
@@ -58,7 +58,7 @@ def call(prompt: str, *, temperature: float) -> str:
             "options": {"temperature": temperature, "num_ctx": 8192, "num_predict": 300},
         }
     ).encode()
-    req = urllib.request.Request(f"{OLLAMA_HOST}/api/generate", data=body, headers={"Content-Type": "application/json"})
+    req = urllib.request.Request(f"{ollama_host(prefer_remote=True)}/api/generate", data=body, headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=600) as r:
         return json.loads(r.read())["response"]
 
