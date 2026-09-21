@@ -21,7 +21,7 @@ from pathlib import Path
 
 import sysone
 
-DEV = Path(__file__).parent / "eval" / "gate_dev.jsonl"
+DEV = Path(__file__).parent / "eval" / __import__("os").environ.get("EVAL_SET", "gate_dev.jsonl")
 OUT = None  # モデルごとに分ける（main で決める）
 
 QUESTIONS = {
@@ -122,6 +122,41 @@ def fit_threshold(rows, t: float, key: str) -> dict:
     }
 
 
+def crossfit(rows: list[dict]) -> dict:
+    """半分で温度と基準を決め、残り半分で測る（2分割・入れ替えて平均）。
+
+    同じデータで合わせて同じデータで測ると、必ず良く見える。
+    poorjev が5分割の交差検証をしているのと同じ考え方。
+    """
+    by_key: dict[str, list] = {}
+    for r in rows:
+        by_key.setdefault(r["key"], []).append(r)
+
+    out: dict[str, dict] = {}
+    for key, items in by_key.items():
+        halves = [items[0::2], items[1::2]]
+        recalls, alarms, thresholds = [], [], []
+        for fit, test in ((halves[0], halves[1]), (halves[1], halves[0])):
+            t = min((x / 100 for x in range(50, 501, 5)), key=lambda x: nll(fit, x))
+            danger_fit = [apply_temp(r["yes_logit_prob"], t) for r in fit if r["truth"]]
+            if not danger_fit:
+                continue
+            th = max(0.01, min(danger_fit) * 0.8)
+            danger_test = [apply_temp(r["yes_logit_prob"], t) for r in test if r["truth"]]
+            safe_test = [apply_temp(r["yes_logit_prob"], t) for r in test if not r["truth"]]
+            if danger_test:
+                recalls.append(sum(1 for p in danger_test if p >= th) / len(danger_test))
+            if safe_test:
+                alarms.append(sum(1 for p in safe_test if p >= th) / len(safe_test))
+            thresholds.append(th)
+        out[key] = {
+            "threshold": round(sum(thresholds) / len(thresholds), 4) if thresholds else 0.5,
+            "recall_heldout": round(sum(recalls) / len(recalls), 3) if recalls else None,
+            "false_alarm_heldout": round(sum(alarms) / len(alarms), 3) if alarms else None,
+        }
+    return out
+
+
 def main() -> None:
     global OUT
     OUT = sysone._calib_path(sysone.MODEL)
@@ -139,7 +174,15 @@ def main() -> None:
         print(f"{name:12}{fn(rows, 1.0):>10.3f}{fn(rows, best_t):>10.3f}")
     print(f"温度: 1.00 → {best_t:.2f}")
 
-    print("\n問いごとの基準（危ないものを取りこぼさない位置に置く）:")
+    cross = crossfit(rows)
+    print("\n交差検証（半分で基準を決め、残り半分で測る）:")
+    print(f"{'問い':10}{'基準':>8}{'取りこぼさない率':>16}{'無駄な印':>10}")
+    for key, v in cross.items():
+        r = f"{v['recall_heldout']:.0%}" if v["recall_heldout"] is not None else "-"
+        a = f"{v['false_alarm_heldout']:.0%}" if v["false_alarm_heldout"] is not None else "-"
+        print(f"{key:10}{v['threshold']:>8.3f}{r:>16}{a:>10}")
+
+    print("\n全データで決めた基準（実際に使う値。上より甘く見える点に注意）:")
     print(f"{'問い':10}{'基準':>8}{'取りこぼし':>10}{'無駄な印':>10}{'危/安全':>10}")
     thresholds = {}
     for key in QUESTIONS:
@@ -154,6 +197,7 @@ def main() -> None:
                 "temperature": round(best_t, 3),
                 "abstain_below": 0.5,
                 "thresholds": thresholds,
+                "crossfit": cross,
                 "measured": {
                     "n": len(rows),
                     "accuracy": round(accuracy(rows, best_t), 3),
