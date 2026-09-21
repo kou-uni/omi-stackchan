@@ -13,3 +13,9 @@ __pycache__/
 
 # 脆弱性の詳細など、公開しないもの
 private/
+
+# ライフログの実データ（安全領域）
+Lifelog/
+*.bin
+*.json
+!segments.json
