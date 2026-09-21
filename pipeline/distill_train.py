@@ -111,7 +111,9 @@ def evaluate() -> None:
     import os
 
     sys.path.insert(0, str(HERE))
-    dev = [json.loads(line) for line in (HERE / "eval" / "gate_dev.jsonl").read_text().splitlines() if line.strip()]
+    name = os.environ.get("EVAL_SET", "gate_holdout.jsonl")
+    dev = [json.loads(line) for line in (HERE / "eval" / name).read_text().splitlines() if line.strip()]
+    print(f"評価データ: {name}（{len(dev)} 件）")
 
     def run(model: str, adapter: str | None) -> dict:
         os.environ["SYSONE_MODEL"] = model
