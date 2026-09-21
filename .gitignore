@@ -19,3 +19,5 @@ Lifelog/
 *.bin
 *.json
 !segments.json
+# 判定モデルの重み等
+*.safetensors

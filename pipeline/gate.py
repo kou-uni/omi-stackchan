@@ -45,7 +45,11 @@ JSON の配列だけを出力してください。各要素:
 
 # 自動チェック：出してはいけないものの手がかり
 PATTERNS = {
-    "鍵・トークンらしき文字列": re.compile(r"(sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{12,}|xox[baprs]-[A-Za-z0-9-]{10,})"),
+    # sk-proj-… のように途中にハイフンが入る形も拾う（2026-09-21: 取りこぼしを見つけて修正）
+    "鍵・トークンらしき文字列": re.compile(
+        r"(sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{12,}|xox[baprs]-[A-Za-z0-9-]{10,}|"
+        r"AIza[0-9A-Za-z_-]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)"
+    ),
     "パスワードらしき記述": re.compile(r"(パスワード|passphrase|password)\s*[:：=]\s*\S+", re.I),
     "電話番号": re.compile(r"0\d{1,4}-?\d{1,4}-?\d{3,4}"),
     "メールアドレス": re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+"),
@@ -64,7 +68,43 @@ def ask(prompt: str) -> str:
 
 
 def check(text: str) -> list[str]:
+    """形（文字列の見た目）で見つける。速いが、書き方を変えられると抜ける。"""
     return [name for name, pat in PATTERNS.items() if pat.search(text)]
+
+
+# --- 意味で見る層（手元の判定モデル）------------------------------------
+# 形だけでは「相手は実家の近くの病院に通っている」のような文を拾えない。
+# 判定は sysone.py（Jev と同じ「確率だけ返す」方式）で、この Mac の中で完結する。
+SEMANTIC_QUESTIONS = {
+    "他人の私的情報": "この文章に、本人以外の人に関する私的な情報（健康・家族・仕事・信条・住まいや居場所・人間関係など）が含まれますか？",
+    "秘密情報": "この文章に、鍵・パスワード・トークンなどの秘密情報が含まれますか？",
+    "場所が分かる": "この文章から、特定の場所や住所が分かりますか？",
+}
+_KEYMAP = {"他人の私的情報": "others", "秘密情報": "secret", "場所が分かる": "place"}
+
+
+def check_meaning(text: str) -> list[str]:
+    """意味で見つける。判定できないときは黙って諦める（形のチェックは残る）。"""
+    try:
+        import sysone
+    except Exception:  # noqa: BLE001
+        return []
+
+    try:
+        calib = json.loads((Path(__file__).parent / "sysone_calibration.json").read_text())
+        thresholds = calib.get("thresholds", {})
+        decisions = sysone.ask(text, {k: sysone.Noul(v) for k, v in SEMANTIC_QUESTIONS.items()})
+    except Exception as e:  # noqa: BLE001
+        print(f"（意味の判定を飛ばしました: {e}）")
+        return []
+
+    hits = []
+    for label, d in decisions.items():
+        p = d.probs.get("はい", 0.0)
+        th = thresholds.get(_KEYMAP[label], {}).get("threshold", 0.7)
+        if p >= th:
+            hits.append(f"{label}（確率{p:.2f}）")
+    return hits
 
 
 def propose(date: str) -> None:
@@ -81,11 +121,14 @@ def propose(date: str) -> None:
         "消し方: 要らない項目のブロックごと削除する。",
         "",
         "⚠ の付いた項目は、自動チェックが何か見つけたものです。**必ず中身を見てください。**",
+        "チェックは二重（**形**＝文字列の見た目 / **意味**＝手元の判定モデル）。どちらも取りこぼしは起こりうる。",
         "",
     ]
     for i, it in enumerate(items, 1):
-        hits = check(it.get("title", "") + it.get("body", ""))
+        text = it.get("title", "") + "\n" + it.get("body", "")
+        hits = check(text) + check_meaning(text)
         flag = "⚠ " + " / ".join(hits) if hits else ""
+        it["_flag"] = flag
         lines += [
             f"## {i}. [{it.get('type')}] {it.get('title')}  {flag}",
             "",
@@ -96,7 +139,7 @@ def propose(date: str) -> None:
         ]
     (d / "review.md").write_text("\n".join(lines))
     (d / "candidates.json").write_text(json.dumps(items, ensure_ascii=False, indent=1))
-    flagged = sum(1 for it in items if check(it.get("title", "") + it.get("body", "")))
+    flagged = sum(1 for it in items if "⚠" in (it.get("_flag") or ""))
     print(f"候補 {len(items)} 件（うち要注意 {flagged} 件）→ {d / 'review.md'} を見て、残すものだけにしてください")
 
 
@@ -113,7 +156,7 @@ def approve(date: str) -> None:
     folders = {"insight": "insights", "decision": "decisions", "question": "questions", "concept": "concepts"}
     written = []
     for it in kept:
-        blocked = check(it["title"] + it["body"])
+        blocked = check(it["title"] + it["body"]) + check_meaning(it["title"] + "\n" + it["body"])
         if blocked:
             print(f"× 止めました（{' / '.join(blocked)}）: {it['title']}")
             continue

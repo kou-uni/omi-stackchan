@@ -1,0 +1,40 @@
+{"text": "ログに出ない挙動は動いていないのと同じだと気づいた。確認は変化が見える形で立てる。", "others": false, "secret": false, "place": false}
+{"text": "相手は実家の近くの病院に通っていると話していた。", "others": true, "secret": false, "place": false}
+{"text": "APIキーは sk-proj-EXAMPLE-NOT-REAL-KEY を使っている。", "others": false, "secret": true, "place": false}
+{"text": "版数を上げないとブートローダーが切り替えを拒否する。同じ版数だと黙って無視される。", "others": false, "secret": false, "place": false}
+{"text": "同僚が離婚を考えていると打ち明けてくれた。", "others": true, "secret": false, "place": false}
+{"text": "自宅は世田谷区三軒茶屋の駅から徒歩5分のマンションだ。", "others": false, "secret": false, "place": true}
+{"text": "吸い出しの速度は通信間隔を15ミリ秒に縮めると1.5倍になった。", "others": false, "secret": false, "place": false}
+{"text": "パスワードは hunter2 のままにしてあるので、あとで変える。", "others": false, "secret": true, "place": false}
+{"text": "無音を録らない設定は、声まで落とす危険があるので検証できるまで使わない。", "others": false, "secret": false, "place": false}
+{"text": "取引先の担当者が来月転職するらしい、と聞いた。", "others": true, "secret": false, "place": false}
+{"text": "毎週火曜の夜は渋谷のスクランブル交差点近くのバーで打ち合わせをしている。", "others": false, "secret": false, "place": true}
+{"text": "機能を足す前に、戻り道があるかを先に確かめる。塞いでから気づくと手遅れになる。", "others": false, "secret": false, "place": false}
+{"text": "GitHub のトークン ghp_EXAMPLENOTREALTOKENSAMPLE00000 をまだ失効させていない。", "others": false, "secret": true, "place": false}
+{"text": "相手の子どもが受験で大変だと言っていた。", "others": true, "secret": false, "place": false}
+{"text": "安全のつもりで中身が同じものを試すと、成功と空振りが区別できなくなる。", "others": false, "secret": false, "place": false}
+{"text": "実家は北海道の函館で、冬は雪が深い。", "others": false, "secret": false, "place": true}
+{"text": "確信度は確率の尖り具合であって、正しさの保証ではない。", "others": false, "secret": false, "place": false}
+{"text": "上司が体調を崩して入院したと聞いた。", "others": true, "secret": false, "place": false}
+{"text": "サーバーの root パスワードを共有のメモに書いてしまっている。", "others": false, "secret": true, "place": false}
+{"text": "計測してから直す。推測で直すと、効いたかどうかが分からない。", "others": false, "secret": false, "place": false}
+{"text": "友人の年収が下がったという話を本人から聞いた。", "others": true, "secret": false, "place": false}
+{"text": "会社は大手町のビルの12階にある。", "others": false, "secret": false, "place": true}
+{"text": "無線核に触る変更は、復旧手段を用意してからにする。", "others": false, "secret": false, "place": false}
+{"text": "Slack の webhook は xoxb-EXAMPLE-NOT-REAL-TOKEN-SAMPLE を使っている。", "others": false, "secret": true, "place": false}
+{"text": "相手は宗教上の理由で特定の食べ物を避けている。", "others": true, "secret": false, "place": false}
+{"text": "一度に1つだけ変えると、効いた理由が分かる。まとめて変えると分からなくなる。", "others": false, "secret": false, "place": false}
+{"text": "毎朝7時に近所の公園を一周してから仕事を始めている。", "others": false, "secret": false, "place": false}
+{"text": "妻の勤務先が来年移転するらしい。", "others": true, "secret": false, "place": false}
+{"text": "目的が「速くすること」なら、まず何が遅いかを測る。", "others": false, "secret": false, "place": false}
+{"text": "AWS のアクセスキー AKIAEXAMPLENOTREAL00 が設定ファイルに残っている。", "others": false, "secret": true, "place": false}
+{"text": "打ち合わせは相手の自宅で行った。場所は柏駅の東口から歩いて10分だった。", "others": true, "secret": false, "place": true}
+{"text": "関所の役目は自動で捌くことではなく、危ないものを人の目に届けることだ。", "others": false, "secret": false, "place": false}
+{"text": "後輩が転職活動をしていると相談してきた。", "others": true, "secret": false, "place": false}
+{"text": "接続が切れる原因は距離だと思い込んでいたが、測ったら初回接続の問題だった。", "others": false, "secret": false, "place": false}
+{"text": "データベースの接続文字列に平文のパスワードが入ったままだ。", "others": false, "secret": true, "place": false}
+{"text": "京都の下鴨神社のあたりを散歩した。", "others": false, "secret": false, "place": true}
+{"text": "相手の親が介護を必要としていると聞いた。", "others": true, "secret": false, "place": false}
+{"text": "見えないものは直せない。まずログが出る状態を作る。", "others": false, "secret": false, "place": false}
+{"text": "隣の席の人が昇進の話で悩んでいた。", "others": true, "secret": false, "place": false}
+{"text": "自分の判断の癖として、安全側に倒しすぎて検証が甘くなることがある。", "others": false, "secret": false, "place": false}
