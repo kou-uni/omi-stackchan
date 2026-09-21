@@ -21,3 +21,5 @@ Lifelog/
 !segments.json
 # 判定モデルの重み等
 *.safetensors
+# 学習データと当て板（生成物）
+pipeline/train/

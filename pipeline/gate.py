@@ -91,7 +91,7 @@ def check_meaning(text: str) -> list[str]:
         return []
 
     try:
-        calib = json.loads((Path(__file__).parent / "sysone_calibration.json").read_text())
+        calib = json.loads(sysone._calib_path(sysone.MODEL).read_text())
         thresholds = calib.get("thresholds", {})
         decisions = sysone.ask(text, {k: sysone.Noul(v) for k, v in SEMANTIC_QUESTIONS.items()})
     except Exception as e:  # noqa: BLE001

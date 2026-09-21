@@ -22,6 +22,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -33,7 +34,20 @@ from mlx_lm.models.cache import make_prompt_cache
 # 3B でも動くが、実測では 7B のほうが明確に良かった（正解率 90.8% / 較正誤差 0.10 / 1判定179ms）。
 # 3B は「他人の私的情報」をほぼ判別できず、全部に印がついてしまった。
 MODEL = os.environ.get("SYSONE_MODEL", "mlx-community/Qwen2.5-7B-Instruct-4bit")
-CALIB_PATH = Path(__file__).parent / "sysone_calibration.json"
+# この用途に特化させた当て板（LoRA）。指定すると、土台のモデルに差分を載せて使う。
+ADAPTER = os.environ.get("SYSONE_ADAPTER") or None
+def _calib_path(model: str, adapter: str | None = None) -> Path:
+    """較正はモデルごとに違う。モデル名から決まるファイルを使う。
+
+    Luce の README にあるとおり **較正は課題やモデルが変われば移らない**ので、
+    1つのファイルを共用すると、別モデルの値を誤って使ってしまう。
+    """
+    name = model if not (adapter or ADAPTER) else f"{model}--{Path(adapter or ADAPTER).name}"
+    slug = re.sub(r"[^A-Za-z0-9]+", "-", name).strip("-").lower()
+    return Path(__file__).parent / f"calibration/{slug}.json"
+
+
+CALIB_PATH = None  # 後方互換のため残す
 
 _model = None
 _tokenizer = None
@@ -42,7 +56,7 @@ _tokenizer = None
 def _ensure_loaded():
     global _model, _tokenizer
     if _model is None:
-        _model, _tokenizer = load(MODEL)
+        _model, _tokenizer = load(MODEL, adapter_path=ADAPTER) if ADAPTER else load(MODEL)
     return _model, _tokenizer
 
 
@@ -100,8 +114,9 @@ def _label_token_ids(tokenizer, labels: list[str]) -> list[int]:
 
 
 def _load_calibration() -> dict:
-    if CALIB_PATH.exists():
-        return json.loads(CALIB_PATH.read_text())
+    path = _calib_path(MODEL)
+    if path.exists():
+        return json.loads(path.read_text())
     return {"temperature": 1.0, "abstain_below": 0.5}
 
 

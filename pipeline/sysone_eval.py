@@ -22,7 +22,7 @@ from pathlib import Path
 import sysone
 
 DEV = Path(__file__).parent / "eval" / "gate_dev.jsonl"
-OUT = Path(__file__).parent / "sysone_calibration.json"
+OUT = None  # モデルごとに分ける（main で決める）
 
 QUESTIONS = {
     "others": sysone.Noul("この文章に、本人以外の人に関する私的な情報（健康・家族・仕事・信条・住まいや居場所・人間関係など）が含まれますか？"),
@@ -123,6 +123,9 @@ def fit_threshold(rows, t: float, key: str) -> dict:
 
 
 def main() -> None:
+    global OUT
+    OUT = sysone._calib_path(sysone.MODEL)
+    OUT.parent.mkdir(exist_ok=True)
     print(f"モデル: {sysone.MODEL}")
     print("判定中 ...")
     rows = collect()
