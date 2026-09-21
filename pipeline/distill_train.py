@@ -28,9 +28,10 @@ from pathlib import Path
 HERE = Path(__file__).parent
 SYNTH = HERE / "train" / "synth.jsonl"
 DATA = HERE / "train" / "data"
-ADAPTER = HERE / "train" / "adapter-v2"
 
-BASE = "mlx-community/Qwen2.5-3B-Instruct-4bit"
+# 土台は環境変数 SYSONE_BASE で差し替えられる（3B と 7B を比べるため）
+BASE = __import__("os").environ.get("SYSONE_BASE", "mlx-community/Qwen2.5-3B-Instruct-4bit")
+ADAPTER = HERE / "train" / __import__("os").environ.get("SYSONE_ADAPTER_NAME", "adapter-7b-v2" if "7B" in BASE else "adapter-v2")
 
 # 問いの文言は、本人が96件にラベルを付けた結果（2026-09-21）に合わせて書き直したもの。
 # **学習と推論で同じ文言を使うこと**。ここがずれると、当て板は古い定義を焼き付けたまま動く。
@@ -85,6 +86,8 @@ def prepare() -> None:
 
 
 def train(iters: int) -> None:
+    import os
+
     cmd = [
         sys.executable,
         "-m",
@@ -97,7 +100,7 @@ def train(iters: int) -> None:
         "--num-layers", "16",
         "--batch-size", "8",
         "--iters", str(iters),
-        "--learning-rate", "1e-4",
+        "--learning-rate", os.environ.get("SYSONE_LR", "1e-4"),
         "--max-seq-length", "512",
         "--mask-prompt",           # 問いの部分は損失に入れない
         "--adapter-path", str(ADAPTER),
