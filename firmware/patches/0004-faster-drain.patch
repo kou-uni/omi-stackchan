@@ -1,0 +1,655 @@
+From 35b5e9e22b06a1e366845e0e98beaeeea498cfce Mon Sep 17 00:00:00 2001
+From: kou <kou@texx.io>
+Date: Mon, 21 Sep 2026 15:32:15 +0900
+Subject: [PATCH] =?UTF-8?q?perf(firmware):=20=E5=90=B8=E3=81=84=E5=87=BA?=
+ =?UTF-8?q?=E3=81=97=E3=82=9225=E2=86=9238KB/s=EF=BC=8815ms=E9=96=93?=
+ =?UTF-8?q?=E9=9A=94=E3=81=A82Mbps=E3=82=92=E6=98=8E=E7=A4=BA=E8=A6=81?=
+ =?UTF-8?q?=E6=B1=82=EF=BC=89=E3=80=81DTX=E3=81=AF=E6=9C=AA=E6=A4=9C?=
+ =?UTF-8?q?=E8=A8=BC=E3=81=AE=E3=81=9F=E3=82=81=E6=88=BB=E3=81=99?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ omi/firmware/omi/omi.conf                |  10 +-
+ omi/firmware/omi/prj.conf                | 394 +++++++++++++++++++++++
+ omi/firmware/omi/src/lib/core/codec.c    |   2 +-
+ omi/firmware/omi/src/lib/core/config.h   |   3 +
+ omi/firmware/omi/src/lib/core/storage.c  | 120 ++++++-
+ omi/firmware/omi/sysbuild.conf           |   3 +-
+ omi/firmware/omi/sysbuild/ipc_radio.conf |   5 +
+ 7 files changed, 524 insertions(+), 13 deletions(-)
+ create mode 100644 omi/firmware/omi/prj.conf
+
+diff --git a/omi/firmware/omi/omi.conf b/omi/firmware/omi/omi.conf
+index 96ead4759c..33e3602d3b 100644
+--- a/omi/firmware/omi/omi.conf
++++ b/omi/firmware/omi/omi.conf
+@@ -197,7 +197,8 @@ CONFIG_BT_CTLR_SDC_MAX_CONN_EVENT_LEN_DEFAULT=400000
+ CONFIG_BT_CONN_TX_MAX=20
+ CONFIG_BT_L2CAP_TX_BUF_COUNT=10
+ CONFIG_BT_BUF_ACL_RX_SIZE=1024
+-CONFIG_BT_BUF_ACL_TX_SIZE=2048
++# CONFIG_BT_BUF_ACL_TX_SIZE=2048  # 自前: 1個あたりを小さくして、その分を個数に回す
++CONFIG_BT_BUF_ACL_TX_SIZE=512
+ # CONFIG_BT_ATT_TX_COUNT=10
+ # CONFIG_BT_EXT_ADV=y
+ # CONFIG_BT_PER_ADV=y
+@@ -385,4 +386,9 @@ CONFIG_NETWORKING=n
+ CONFIG_OMI_ENABLE_WIFI=n
+ 
+ # 自前: ブートローダーの「新しいものだけ受け付ける」判定を通すため版数を上げる
+-CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION="0.0.3+0"
++CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION="0.0.9+0"
++
++# 自前: 送信バッファの数を増やす（2026-09-21）
++# 既定は3個。実測で「1回の通信機会に2〜3個しか送れない」原因がこれだった。
++# 12個にすると、1回の機会にもっと詰め込める。MTU 498 に対し1個512バイトで足りる。
++CONFIG_BT_BUF_ACL_TX_COUNT=12
+diff --git a/omi/firmware/omi/prj.conf b/omi/firmware/omi/prj.conf
+new file mode 100644
+index 0000000000..33e3602d3b
+--- /dev/null
++++ b/omi/firmware/omi/prj.conf
+@@ -0,0 +1,394 @@
++CONFIG_SERIAL=y
++
++CONFIG_GPIO=y
++CONFIG_INPUT=y
++CONFIG_I2C=y
++# CONFIG_I2C_SHELL=y
++CONFIG_SPI=y
++CONFIG_SPI_NOR=y
++# CONFIG_SPI_SHELL=y
++CONFIG_SETTINGS=y
++CONFIG_SETTINGS_NVS=y
++CONFIG_NVS=y
++
++CONFIG_PM_DEVICE=y
++# CONFIG_PM_DEVICE_RUNTIME=y
++CONFIG_ADC=y
++CONFIG_ADC_ASYNC=y
++CONFIG_ADC_NRFX_SAADC=y
++CONFIG_AUDIO=y
++CONFIG_AUDIO_DMIC=y
++CONFIG_FLASH=y
++CONFIG_FLASH_JESD216_API=y
++CONFIG_DISK_DRIVER_SDMMC=y
++CONFIG_SENSOR=y
++CONFIG_REGULATOR=y
++CONFIG_ENTROPY_GENERATOR=y
++
++CONFIG_BT=y
++CONFIG_BT_SMP=y
++CONFIG_BT_PERIPHERAL=y
++CONFIG_BT_DIS=n
++CONFIG_BT_BAS=n
++# CONFIG_BT_DEVICE_NAME="OMI" # configurated bellow
++# CONFIG_BT_DEVICE_APPEARANCE=768 # TODO: conflict
++CONFIG_CBPRINTF_FP_SUPPORT=y
++
++CONFIG_NCS_SAMPLE_MCUMGR_BT_OTA_DFU=y
++CONFIG_MCUMGR_GRP_IMG_ALLOW_ERASE_PENDING=y
++# Enable the BT NUS shell
++# CONFIG_SHELL=y
++# CONFIG_SHELL_BT_NUS=y
++# CONFIG_SHELL_BT_NUS_LOG_LEVEL_DBG=y
++# CONFIG_SHELL_BACKEND_DUMMY=y
++
++CONFIG_POWEROFF=y
++
++# CONFIG_T5838_LOG_LEVEL_DBG=y
++# CONFIG_T5838_AAD_TRIGGER=y
++
++# file system
++# CONFIG_MAIN_STACK_SIZE=2048
++CONFIG_FILE_SYSTEM=y
++# CONFIG_FILE_SYSTEM_EXT2=y
++
++# Enable to allow formatting
++CONFIG_FILE_SYSTEM_MKFS=y
++CONFIG_FS_FATFS_MKFS=y
++# CONFIG_TEST_RANDOM_GENERATOR=y
++
++CONFIG_DISK_ACCESS=y
++CONFIG_DISK_DRIVER_SDMMC=y
++
++# FAT filesystem automatically detects partitions
++# CONFIG_EXT2_DISK_STARTING_SECTOR=2082
++
++# wifi
++# CONFIG_WIFI=y
++# CONFIG_WIFI_NRF70=y
++# CONFIG_WIFI_FIXED_MAC_ADDRESS="14:5A:FC:5E:37:9C"
++# WPA supplicant
++# CONFIG_WIFI_NM_WPA_SUPPLICANT=y
++# CONFIG_WIFI_READY_LIB=y
++
++# Soft AP
++CONFIG_NRF70_AP_MODE=y
++# CONFIG_WIFI_NM_WPA_SUPPLICANT_AP=y
++# CONFIG_WIFI_NM_WPA_SUPPLICANT_LOG_LEVEL_INF=y
++
++# Networking
++# CONFIG_NETWORKING=y
++# CONFIG_NET_SOCKETS=y
++# CONFIG_NET_IPV4=y
++# CONFIG_NET_IPV6=n
++# CONFIG_NET_UDP=y
++# CONFIG_NET_TCP=y
++# CONFIG_NET_DHCPV4_SERVER=y
++
++# CONFIG_NET_PKT_TX_COUNT=32
++# CONFIG_NET_PKT_RX_COUNT=10
++# CONFIG_NET_BUF_TX_COUNT=64
++# CONFIG_NET_BUF_RX_COUNT=10
++
++CONFIG_HEAP_MEM_POOL_SIZE=175000
++CONFIG_HEAP_MEM_POOL_IGNORE_MIN=y
++# CONFIG_NET_TC_TX_COUNT=1
++
++# CONFIG_NET_IF_UNICAST_IPV4_ADDR_COUNT=1
++# CONFIG_NET_MAX_CONTEXTS=8
++# CONFIG_NET_MAX_CONN=8
++# CONFIG_NET_CONTEXT_SYNC_RECV=y
++
++CONFIG_INIT_STACKS=y
++
++# CONFIG_NET_L2_ETHERNET=y
++
++# CONFIG_NET_CONFIG_SETTINGS=y
++# CONFIG_NET_CONFIG_INIT_TIMEOUT=0
++# CONFIG_NET_PKT_BUF_TX_DATA_POOL_SIZE=12000
++
++# Memories
++CONFIG_MAIN_STACK_SIZE=4096
++# CONFIG_NET_TX_STACK_SIZE=2048
++# CONFIG_NET_RX_STACK_SIZE=2048
++
++# Kernel options
++CONFIG_ENTROPY_GENERATOR=y
++CONFIG_POSIX_CLOCK=y
++
++# CONFIG_NET_CONFIG_MY_IPV4_ADDR="192.168.1.1"
++# CONFIG_NET_CONFIG_MY_IPV4_NETMASK="255.255.255.0"
++# CONFIG_NET_CONFIG_MY_IPV4_GW="192.168.1.1"
++# CONFIG_NET_MGMT_EVENT_QUEUE_TIMEOUT=5000
++
++#
++# Hardware settings
++#
++
++CONFIG_PWM=y
++CONFIG_GPIO=y
++CONFIG_ADC=y
++
++#
++# Audio (new)
++#
++CONFIG_I2S=y
++CONFIG_I2S_NRFX=y
++CONFIG_SPI_NRFX=y
++CONFIG_AUDIO=y
++CONFIG_AUDIO_DMIC=y
++CONFIG_AUDIO_DMIC_NRFX_PDM=y
++CONFIG_NRFX_PDM0=y  # PDM microphone
++
++# Watchdog Timer
++CONFIG_WATCHDOG=y
++CONFIG_WDT_DISABLE_AT_BOOT=n
++
++# To flash via dev board
++#CONFIG_BUILD_OUTPUT_UF2=n
++#CONFIG_USE_DT_CODE_PARTITION=n
++
++#
++# Bluetooth settings
++#
++
++CONFIG_BT=y
++CONFIG_BT_PERIPHERAL=y
++CONFIG_BT_MAX_CONN=1
++# CONFIG_BT_EXT_ADV_MAX_ADV_SET=2
++CONFIG_BT_MAX_PAIRED=1
++CONFIG_BT_DEVICE_APPEARANCE=22
++CONFIG_BT_GATT_DYNAMIC_DB=y
++
++#
++# Max transmit power supported by nRF52840
++#
++
++CONFIG_BT_CTLR_TX_PWR_ANTENNA=8
++CONFIG_BT_PHY_UPDATE=y
++
++#
++# Battery and Device Information services
++#
++
++CONFIG_BT_BAS=y
++CONFIG_BT_DIS=y
++CONFIG_BT_DIS_PNP=n
++CONFIG_BT_DEVICE_NAME="Omi"
++CONFIG_BT_DIS_MODEL="Omi CV 1"
++CONFIG_BT_DIS_MANUF="Based Hardware"
++CONFIG_BT_DIS_FW_REV=y
++CONFIG_BT_DIS_HW_REV=y
++CONFIG_BT_DIS_FW_REV_STR="3.0.15"
++CONFIG_BT_DIS_HW_REV_STR="5.0"
++
++#
++# Large BLE packets / BLE Buffers 
++#
++# CONFIG_BT_GATT_CLIENT=y
++# CONFIG_BT_THROUGHPUT=y
++
++CONFIG_BT_L2CAP_TX_MTU=498
++
++CONFIG_BT_CTLR_DATA_LENGTH_MAX=251
++CONFIG_BT_CTLR_PHY_2M=y
++CONFIG_BT_CTLR_PHY_CODED=y
++CONFIG_BT_CTLR_SDC_MAX_CONN_EVENT_LEN_DEFAULT=400000
++CONFIG_BT_CONN_TX_MAX=20
++CONFIG_BT_L2CAP_TX_BUF_COUNT=10
++CONFIG_BT_BUF_ACL_RX_SIZE=1024
++# CONFIG_BT_BUF_ACL_TX_SIZE=2048  # 自前: 1個あたりを小さくして、その分を個数に回す
++CONFIG_BT_BUF_ACL_TX_SIZE=512
++# CONFIG_BT_ATT_TX_COUNT=10
++# CONFIG_BT_EXT_ADV=y
++# CONFIG_BT_PER_ADV=y
++# CONFIG_BT_OBSERVER=y
++# CONFIG_BT_ATT_PREPARE_COUNT=2
++CONFIG_BT_USER_DATA_LEN_UPDATE=y
++CONFIG_BT_USER_PHY_UPDATE=y
++CONFIG_BT_AUTO_DATA_LEN_UPDATE=y
++CONFIG_BT_AUTO_PHY_UPDATE=y
++#CONFIG_BT_GATT_AUTO_UPDATE_MTU=y
++
++CONFIG_BT_GATT_CLIENT=y
++
++# Automatically request preferred connection parameters (default is y, but explicit)
++CONFIG_BT_GAP_AUTO_UPDATE_CONN_PARAMS=y
++
++# Set preferred connection parameters
++# 7.5ms
++CONFIG_BT_PERIPHERAL_PREF_MIN_INT=6
++# 30ms
++CONFIG_BT_PERIPHERAL_PREF_MAX_INT=24
++CONFIG_BT_PERIPHERAL_PREF_LATENCY=0
++# 4 seconds
++CONFIG_BT_PERIPHERAL_PREF_TIMEOUT=400
++
++CONFIG_FPU=y
++CONFIG_NORDIC_QSPI_NOR=y
++# CONFIG_BOARD_ENABLE_DCDC=y
++#
++
++#
++# Console
++#
++# Y to enable console log
++CONFIG_CONSOLE=n
++CONFIG_PRINTK=n
++CONFIG_UART_CONSOLE=n
++# CONFIG_SHELL_BACKEND_SERIAL=y
++
++#
++# Logs
++#
++
++## Enable the lines below to enable logs via UART/USB
++# CONFIG_LOG=y
++# CONFIG_NET_LOG=y
++# CONFIG_LOG_PRINTK=y
++# CONFIG_UART_CONSOLE=y
++# CONFIG_LOG_PROCESS_THREAD_PRIORITY=5
++# CONFIG_LOG_PROCESS_THREAD_CUSTOM_PRIORITY=y
++#
++# CONFIG_LOG_MODE_IMMEDIATE=y
++# CONFIG_SENSOR_LOG_LEVEL_DBG=y
++# CONFIG_FLASH_LOG_LEVEL_DBG=y
++# CONFIG_FS_LOG_LEVEL_DBG=y
++# CONFIG_WIFI_LOG_LEVEL_ERR=y
++# CONFIG_WIFI_NRF70_LOG_LEVEL_DBG=y
++
++#
++# Enable logging (set level to DBG=4, INF=3, WRN=2, ERR=1)
++# CONFIG_LOG_DEFAULT_LEVEL=3
++
++#
++# Log level and buffer size
++#
++
++# CONFIG_LOG_OVERRIDE_LEVEL=4
++# CONFIG_LOG_BUFFER_SIZE=32000
++# CONFIG_LOG_PROCESS_THREAD_STACK_SIZE=4096
++
++#
++# Debug
++#
++
++# CONFIG_DEBUG=y
++# CONFIG_DEBUG_OPTIMIZATIONS=y
++# CONFIG_SERIAL=y
++
++#
++# Debug (This value breaks some builds)
++#
++
++# CONFIG_ASSERT=y
++
++#
++# BT log configuration
++#
++
++# CONFIG_BT_DEBUG_LOG=y
++# CONFIG_BT_L2CAP_LOG_LEVEL_DBG=y
++# CONFIG_BT_LOG_LEVEL_DBG=y
++
++# CONFIG_BT_RX_STACK_SIZE=4096
++# CONFIG_BT_CTLR_RX_PRIO_STACK_SIZE=4096
++# CONFIG_BT_DEBUG_LOG=y
++# CONFIG_BT_RX_STACK_SIZE=4096
++# CONFIG_BT_CTLR_RX_PRIO_STACK_SIZE=4096
++
++#
++# SD Card Support (all devices required)
++#
++
++CONFIG_DISK_ACCESS=y
++CONFIG_FILE_SYSTEM=y
++
++# WARN: was the cause of high battery usage. Need to be checked.
++CONFIG_FAT_FILESYSTEM_ELM=y
++
++CONFIG_FS_FATFS_MOUNT_MKFS=y
++#CONFIG_FS_FATFS_EXFAT=y
++CONFIG_MAIN_STACK_SIZE=4096
++# CONFIG_DISK_DRIVER_SDMMC=y
++# CONFIG_SPI=y
++# CONFIG_HEAP_MEM_POOL_SIZE=512 # disabled by conflicting
++
++#
++# Disable unused peripherals
++#
++CONFIG_I2C=n
++# CONFIG_NRFX_TWIM0=n
++# CONFIG_NRFX_TWIM1=n
++
++#
++# LSM6DSL sensor (accelerometer and gyroscope)
++#
++CONFIG_LSM6DSL=y
++CONFIG_LSM6DSL_ENABLE_TEMP=n
++# CONFIG_LSM6DSL_TRIGGER_GLOBAL_THREAD=y
++CONFIG_SENSOR=y
++
++#
++# Speaker
++#
++CONFIG_I2S=y
++CONFIG_I2S_NRFX=y
++CONFIG_SPI_NRFX=y
++
++#
++# NFC (in the future)
++#
++
++# CONFIG_NFC_T2T_NRFXLIB=y
++# CONFIG_NFC_NDEF=y
++# CONFIG_NFC_NDEF_MSG=y
++# CONFIG_NFC_NDEF_RECORD=y
++# CONFIG_NFC_NDEF_URI_MSG=y
++# CONFIG_NFC_NDEF_URI_REC=y
++# CONFIG_HWINFO=y
++
++#
++#EVERYTHING ELSE
++#
++
++CONFIG_RING_BUFFER=y
++
++CONFIG_PM_DEVICE=y
++# CONFIG_NRFX_USBD=y
++
++# CONFIG_FLASH=y
++#
++
++#
++# Omi features configuration
++#
++CONFIG_OMI_CODEC_OPUS=y
++CONFIG_OMI_ENABLE_OFFLINE_STORAGE=y
++CONFIG_OMI_ENABLE_ACCELEROMETER=n
++CONFIG_OMI_ENABLE_BUTTON=y
++CONFIG_OMI_ENABLE_SPEAKER=n
++CONFIG_OMI_ENABLE_BATTERY=y
++CONFIG_OMI_ENABLE_USB=n
++CONFIG_OMI_ENABLE_HAPTIC=y
++CONFIG_OMI_ENABLE_RFSW_CTRL=y
++CONFIG_OMI_ENABLE_MONITOR=n
++# CONFIG_OMI_ENABLE_WIFI=y
++
++
++# --- 自前: Wi-Fi 一式を無効化（2026-09-21）-------------------------------
++# 本体が自分で電波を出して通信する経路を丸ごと外す。
++#  ・使っていない（吸い出しは BLE 経由）
++#  ・外から触れる面を減らせる
++#  ・容量 -563KB / RAM -81KB（RAM 99.24% → 81.22%）
++# 戻すときは上のコメントアウトを外し、sysbuild.conf の SB_CONFIG_WIFI_NRF70 を y に。
++CONFIG_NETWORKING=n
++CONFIG_OMI_ENABLE_WIFI=n
++
++# 自前: ブートローダーの「新しいものだけ受け付ける」判定を通すため版数を上げる
++CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION="0.0.9+0"
++
++# 自前: 送信バッファの数を増やす（2026-09-21）
++# 既定は3個。実測で「1回の通信機会に2〜3個しか送れない」原因がこれだった。
++# 12個にすると、1回の機会にもっと詰め込める。MTU 498 に対し1個512バイトで足りる。
++CONFIG_BT_BUF_ACL_TX_COUNT=12
+diff --git a/omi/firmware/omi/src/lib/core/codec.c b/omi/firmware/omi/src/lib/core/codec.c
+index e996551285..72848f2854 100644
+--- a/omi/firmware/omi/src/lib/core/codec.c
++++ b/omi/firmware/omi/src/lib/core/codec.c
+@@ -103,7 +103,7 @@ int codec_start()
+     ASSERT_TRUE(opus_encoder_ctl(m_opus_state, OPUS_SET_COMPLEXITY(CODEC_OPUS_COMPLEXITY)) == OPUS_OK);
+     ASSERT_TRUE(opus_encoder_ctl(m_opus_state, OPUS_SET_SIGNAL(OPUS_SIGNAL_VOICE)) == OPUS_OK);
+     ASSERT_TRUE(opus_encoder_ctl(m_opus_state, OPUS_SET_LSB_DEPTH(16)) == OPUS_OK);
+-    ASSERT_TRUE(opus_encoder_ctl(m_opus_state, OPUS_SET_DTX(0)) == OPUS_OK);
++    ASSERT_TRUE(opus_encoder_ctl(m_opus_state, OPUS_SET_DTX(0)) == OPUS_OK); // 自前: 検証できるまで戻す（声を無音と誤判定する疑い）
+     ASSERT_TRUE(opus_encoder_ctl(m_opus_state, OPUS_SET_INBAND_FEC(0)) == OPUS_OK);
+     ASSERT_TRUE(opus_encoder_ctl(m_opus_state, OPUS_SET_PACKET_LOSS_PERC(0)) == OPUS_OK);
+ #endif
+diff --git a/omi/firmware/omi/src/lib/core/config.h b/omi/firmware/omi/src/lib/core/config.h
+index 612743a7b5..599ca88a98 100644
+--- a/omi/firmware/omi/src/lib/core/config.h
++++ b/omi/firmware/omi/src/lib/core/config.h
+@@ -24,6 +24,9 @@
+ #if CODEC_OPUS
+ #define CODEC_PACKAGE_SAMPLES 160 * 2
+ #define CODEC_OUTPUT_MAX_BYTES CODEC_PACKAGE_SAMPLES / 2
++// 2026-09-21: VOIP + DTX を試したが、45秒間すべて無音扱いになった。
++// 声を出したかどうか未確認のまま危険な設定を残せないので、純正の設定に戻した。
++// 再挑戦する前に、まずマイク感度（現在6）を上げて録音音量を改善すること。
+ #define CODEC_OPUS_APPLICATION OPUS_APPLICATION_RESTRICTED_LOWDELAY
+ #define CODEC_OPUS_BITRATE 32000
+ #define CODEC_OPUS_VBR 1 // Or 1
+diff --git a/omi/firmware/omi/src/lib/core/storage.c b/omi/firmware/omi/src/lib/core/storage.c
+index e643de4c2e..d8558845ae 100644
+--- a/omi/firmware/omi/src/lib/core/storage.c
++++ b/omi/firmware/omi/src/lib/core/storage.c
+@@ -149,10 +149,102 @@ static uint8_t stop_started = 0;
+ static uint8_t delete_started = 0;
+ uint32_t remaining_length = 0;
+ 
++// --- 転送の改善（自前・上流 main の作りにならう）-----------------------------
++// 元の実装は「440バイト読む → 1個送る」の繰り返しで、読み出しの待ち時間のあいだに
++// 通信の機会（約30ms周期）が過ぎてしまい、1機会あたり2〜3個しか送れていなかった。
++//   ・まとめて読み、連続で送る
++//   ・送信完了を数え、在庫の2個は他の通知（電池残量など）のために残す
++//   ・送信に失敗したら、その分は送り直す（元は取りこぼしていた）
++#define STORAGE_BATCH_PACKETS 10
++#define STORAGE_TX_RESERVED 2 // CONFIG_BT_L2CAP_TX_BUF_COUNT=10 のうち他の通知用
++#define STORAGE_TX_INFLIGHT_MAX (10 - STORAGE_TX_RESERVED)
++
++K_SEM_DEFINE(storage_tx_sem, STORAGE_TX_INFLIGHT_MAX, STORAGE_TX_INFLIGHT_MAX);
++
++static void storage_tx_done(struct bt_conn *conn, void *user_data)
++{
++    ARG_UNUSED(conn);
++    ARG_UNUSED(user_data);
++    k_sem_give(&storage_tx_sem);
++}
++
++// 1個送る。在庫が空なら空くまで待つ（= 流量調整）。送れたら true
++static bool storage_send_one(struct bt_conn *conn, const uint8_t *data, uint16_t len)
++{
++    if (k_sem_take(&storage_tx_sem, K_MSEC(2000)) != 0) {
++        LOG_WRN("tx buffer wait timeout");
++        return false;
++    }
++
++    struct bt_gatt_notify_params params = {
++        .attr = &storage_service.attrs[1],
++        .data = data,
++        .len = len,
++        .func = storage_tx_done,
++    };
++
++    int err = bt_gatt_notify_cb(conn, &params);
++    if (err) {
++        k_sem_give(&storage_tx_sem);
++        return false;
++    }
++    return true;
++}
++
++// 送信中のものが全部片付くまで待つ（バッファを読み直しで上書きする前に必要）
++static void storage_wait_tx_drained(void)
++{
++    for (int i = 0; i < 400; i++) {
++        if (k_sem_count_get(&storage_tx_sem) == STORAGE_TX_INFLIGHT_MAX) {
++            return;
++        }
++        k_sleep(K_MSEC(5));
++    }
++    LOG_WRN("tx drain timeout");
++}
++
++// 転送の間だけ、通信の機会を増やしてもらう（30ms → 15ms）。
++// Apple の仕様で最短15ms・最大は最短+15ms以上・切断猶予2〜6秒。その範囲に収める。
++static void storage_request_fast_link(void)
++{
++    struct bt_conn *conn = get_current_connection();
++    if (!conn) {
++        return;
++    }
++
++    // 幅を持たせると相手が遅いほうを選ぶ（実測: 15〜30ms と頼んだら 30ms のままだった）。
++    // なので15msで固定して頼む。断られても転送は続く。
++    const struct bt_le_conn_param param = {
++        .interval_min = 12, // 15ms
++        .interval_max = 12, // 15ms
++        .latency = 0,
++        .timeout = 400, // 4秒
++    };
++
++    int err = bt_conn_le_param_update(conn, &param);
++    if (err) {
++        LOG_WRN("conn param update request failed: %d", err);
++    }
++
++    // 速いほうの電波（2Mbps）を明示的に要求する。
++    // 実測ではパケット1個に約3.8ms かかっており、1Mbps で動いている疑いがある。
++    const struct bt_conn_le_phy_param phy = {
++        .options = BT_CONN_LE_PHY_OPT_NONE,
++        .pref_tx_phy = BT_GAP_LE_PHY_2M,
++        .pref_rx_phy = BT_GAP_LE_PHY_2M,
++    };
++
++    err = bt_conn_le_phy_update(conn, &phy);
++    if (err) {
++        LOG_WRN("phy update request failed: %d", err);
++    }
++}
++
+ static int setup_storage_tx()
+ {
+     transport_started = (uint8_t) 0;
+     LOG_INF("about to transmit storage\n");
++    storage_request_fast_link();
+     k_msleep(1000);
+ 
+     uint32_t file_size = get_file_size();
+@@ -340,23 +432,33 @@ static ssize_t storage_wifi_handler(struct bt_conn *conn,
+ 
+ static void write_to_gatt(struct bt_conn *conn)
+ {
++    uint32_t want = MIN(remaining_length, (uint32_t) (SD_BLE_SIZE * STORAGE_BATCH_PACKETS));
+ 
+-    uint32_t packet_size = MIN(remaining_length, SD_BLE_SIZE);
+-
+-    int r = read_audio_data(storage_write_buffer, packet_size, offset);
++    int r = read_audio_data(storage_write_buffer, want, offset);
+     if (r < 0) {
+         LOG_ERR("Failed to read audio data: %d", r);
+         remaining_length = 0; // Stop transfer on error
+         return;
+     }
+ 
+-    offset = offset + packet_size;
+-    int err = bt_gatt_notify(conn, &storage_service.attrs[1], &storage_write_buffer, packet_size);
+-    if (err) {
+-        LOG_PRINTK("error writing to gatt: %d\n", err);
+-    } else {
+-        remaining_length = remaining_length - packet_size; // FIX: Use packet_size, not SD_BLE_SIZE
++    uint32_t got = (uint32_t) r;
++    uint32_t sent = 0;
++
++    while (sent < got) {
++        uint32_t chunk = MIN(got - sent, (uint32_t) SD_BLE_SIZE);
++
++        if (!storage_send_one(conn, storage_write_buffer + sent, (uint16_t) chunk)) {
++            break; // 送れなかった分は次の周回で同じ位置から送り直す
++        }
++
++        sent += chunk;
+     }
++
++    // バッファを次の読み出しで上書きする前に、送信中のものを片付ける
++    storage_wait_tx_drained();
++
++    offset += sent;
++    remaining_length -= MIN(sent, remaining_length);
+ }
+ 
+ #ifdef CONFIG_OMI_ENABLE_WIFI
+diff --git a/omi/firmware/omi/sysbuild.conf b/omi/firmware/omi/sysbuild.conf
+index be5a3f20e0..46dbcaef61 100644
+--- a/omi/firmware/omi/sysbuild.conf
++++ b/omi/firmware/omi/sysbuild.conf
+@@ -4,7 +4,8 @@
+ # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ #
+ 
+-SB_CONFIG_WIFI_NRF70=y
++# SB_CONFIG_WIFI_NRF70=y   # 自前: Wi-Fi 無効化（2026-09-21）
++SB_CONFIG_WIFI_NRF70=n
+ # SB_CONFIG_WIFI_NRF70_SCAN_ONLY=y
+ 
+ SB_CONFIG_BOOTLOADER_MCUBOOT=y
+diff --git a/omi/firmware/omi/sysbuild/ipc_radio.conf b/omi/firmware/omi/sysbuild/ipc_radio.conf
+index d6b20c1516..bd593f4963 100644
+--- a/omi/firmware/omi/sysbuild/ipc_radio.conf
++++ b/omi/firmware/omi/sysbuild/ipc_radio.conf
+@@ -49,3 +49,8 @@ CONFIG_MPSL_CX=y
+ #Added to fix BLE crash in coex enable cases.
+ CONFIG_NRF_RPC=n
+ CONFIG_NRF_RPC_CBOR=n
++
++# 自前（2026-09-21）: 一度に扱えるパケット数を増やせば、さらに速くなることは分かっている。
++# ただし反映には無線核そのものの書き換えが必要で、失敗すると Bluetooth が死ぬ。
++# 有線の復旧手段を用意してから着手する。いまは触らない。
++# CONFIG_BT_CTLR_SDC_TX_PACKET_COUNT=10
+-- 
+2.50.1 (Apple Git-155)
+
