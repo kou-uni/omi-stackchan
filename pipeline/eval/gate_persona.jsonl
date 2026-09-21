@@ -1,0 +1,95 @@
+{"text": ":30AM 出勤、朝から汗かいちゃうな", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "部品交換、#45のモータが全然動かねえ", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false}
+{"text": "課長と打合せ、新人教育はもっとちゃんとやらにゃいかんよな", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": ":15PM 昼休み、近所の中華屋さんでラーメン食ってきました", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "号機のオイル交換した、次回は再来週でいいかな？", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false}
+{"text": "先輩から教わった配線ノウハウ、メモとっておいて良かった", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "明日は遠征、東側の工場の設備点検なんだよなあ", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3) place(1/3)"}
+{"text": "夜遅くまで作業、やっぱ現場は経験積むしかないよな", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false}
+{"text": ":30AM、制御盤点検終了。異常なし。", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false}
+{"text": "台目のロボットアームオーバーホール開始。部品交換済。", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false}
+{"text": "課長から電話、来週の緊急メンテについて打ち合わせ要請。", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "夕方5時、工場外回りで汗だく。この暑さは堪えるな。", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "班との作業手順ミスでトラブル発生。コミュニケーションが足らなかった。", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false}
+{"text": "午前中の予定変更。10:45AMから設計部と会議。", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "先輩に聞いたパーツの入れ替え法、メモしておいたけど効果あったね。", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "週末のプライベート時間確保のために、業務効率化を考え中。", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false}
+{"text": ":30工場着、今日の作業は5号機の点検から", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "place(1/3)"}
+{"text": "号コンベアのモータがどうも弱ってるみたい、あとでチェックする予定", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "午前中は課長と5Fまで上がった、上層部の要望で生産ライン最適化の話があった", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "お昼にいつもより遅く食堂へ、隣席の小林さんと今期のボーナスの話をした", "persona": "現場の保守エンジニア", "others": true, "secret": false, "place": false, "_ambiguous": "others(2/3)"}
+{"text": ":00から1号炉のオーバーホール、作業時間は6時間を超える予定", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false}
+{"text": "夜の7時まで残業、最後に電源系統の確認して退社", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false}
+{"text": "やっぱり来週の新人教育は重いな、彼らには現場の厳しさを伝えておきたい", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "帰り道でふと、この業界が将来どう変わるのか考えちゃった", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false}
+{"text": ":30に工場着、Aラインの機械具合見たらやっぱり止まってた", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3) place(1/3)"}
+{"text": "中川課長から12時集合、会議室で設備点検の進捗打合せらしい", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": ":56頃、Bラインのバルブ交換終了、流体漏れ再発防止に軸受も確認", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false}
+{"text": "部品在庫が足りねえ、これ明日以降延びるぞ…工場外注先に連絡しておかないと", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "夜は同期と飲む約束、20年来の付き合い、最近の話題が全然分からんわ", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "Hzモーターの異音、ベルトテンション調整したら落ち着いたけど、本格的に見直すべきか考え中", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false}
+{"text": "天気悪いな…自転車で帰ってるけど、雨に打たれて骨が痛むよ", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "先輩から受け継いだトラブルシューティングノート、実際役立つことが多いから感謝する", "persona": "現場の保守エンジニア", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "今日も利用者さん宅を6軒回ることができました。お疲れ様です。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3) place(1/3)"}
+{"text": "軒目のIさん、体調が優れなくて少し心配ですね。また具合を見に行かなきゃ。", "persona": "訪問介護のヘルパー", "others": true, "secret": false, "place": false, "_ambiguous": "others(2/3)"}
+{"text": "移動時間は意外とかかるなと改めて感じた一日でした。車の調子も気をつけないと。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "Jさん宅でいただいたお茶が美味しくて、また行きたいなと思ってしまいました。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "先輩から教えてもらった介護のお手伝い、上手くいかなくて焦っちゃいましたが、なんとかなりましたよ。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "Kさんの元気な笑顔を見ると仕事の疲れも吹き飛ぶ気がしますね。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "移動中のラジオで流れていた曲に心を奪われました。落ち着きますね、音楽って。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false}
+{"text": "来週の訪問スケジュールが詰まっていて、時間管理を考える今日この頃です。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "今日も天気が良くて、訪問するご家族が元気そうでした。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "先日お話しした利用者の体調が少しよくなったみたいです、よかった〜。", "persona": "訪問介護のヘルパー", "others": true, "secret": false, "place": false, "_ambiguous": "others(2/3)"}
+{"text": "午後からの移動は時間に余裕があったので、ゆっくり休むことができました。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false}
+{"text": "先輩から教えてもらった介護技術を昨日試してみたら、とっても役立った！", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "今週訪問した高齢者の方々の日記をつけなきゃ。今日中に仕上げたいと思います。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "午後の訪問途中で雨にあい、車が濡れてしまった。洗濯物が大変になるかな。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "朝の利用者様との会話の中で、お孫さんへの手紙を書いてあげました。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "体調不良のご家族が多くて心配だけど、元気な表情を見せていただけるとほっとします。", "persona": "訪問介護のヘルパー", "others": true, "secret": false, "place": false, "_ambiguous": "others(2/3)"}
+{"text": "今日も天気がよく、利用者の方々の表情が明るかったな。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "移動中に聞こえてきたラジオのニュースで、地域のボランティア活動について知ることができて興味深かった。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "朝一のお宅では、ご本人と孫さんの手紙のやりとりを手伝ってもらい、少し時間がかかってしまったけど、とても温かい時間だった。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "お昼は久しぶりに近くのカフェで食べ物を作ってくれる方のお話しを聞きながら、軽くランチをした。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "午後の訪問では新しいヘルパーが一緒に来てくれて、自分の仕事を丁寧に見てくれた。後輩の成長を実感できて嬉しい。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "先日の台風の影響でお庭の片付けを手伝ってもらった方がいたけど、草花が元気そうで安心した。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "夕方のお宅ではテレビを見ながら一緒に過ごす時間が多かった。利用者の笑顔は私のエネルギー源だ。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "今日もたくさんのことを学んだし、利用者の方々との会話から新しい視点や考え方を得ることができた一日だった。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "雨が降ってて路面が滑りやすかったので、今日はいつも以上に注意して車を運転した。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "利用者様から作業の手伝いありがとうとお礼を言われて、ちょっと感動しちゃった。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "朝早くに出社せなきゃいけなかったけど、おかげで家の近所の桜が綺麗に咲いてることに気づいたよ。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "今朝は胃が少し重かったから利用者様宅へ向かう途中にコンビニで昼食を買っておこうと決めたんだけど、すっかり忘れちゃって。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3) place(1/3)"}
+{"text": "利用者様のお孫さんが遊びに来てて、子供の活気があるのは嬉しいね。でもちょっと慌ただしいな。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "掃除の仕事中、隣りの部屋から流れてくるラジオの声が気持ちよかった。久しぶりに昭和歌謡聴いた。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "先輩ヘルパーと休憩時間に雑談してるうちに、自分の体調管理の大切さを改めて認識した。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "夕方になったのに天気が晴れてくれてない。気分も落ち込んでしまって。夜は少し早めに寝ようと思う。", "persona": "訪問介護のヘルパー", "others": false, "secret": false, "place": false}
+{"text": "引用した文献から得た新たな視点が論文の骨子となりつつあり、特に著者の「社会的慣習は常に変容し続けるものである」という指摘が私の研究テーマとの接点を明確にしました。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "本日の図書館訪問では膨大な資料の中から意外な発見がありました。1970年代の都市計画に関する未公開資料を見つけ、これによって私の修士論文に重要な追加要素を導入できる可能性があります。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "今日のゼミナールではクラスメイトとの意見交換が非常に活発でした。ある同僚が提示した「現代社会における個人情報の扱いについて」の議論が特に刺激的で、自分自身の思考を深めることができました。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "朝の電車での通勤中にふと浮かんだアイデアがあり、「人々の日常生活は常に相互作用の中で形成され続けている」という観察結果をメモしておきました。この考えは私の研究に重要な要素となりそうです。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "夕刻、大学の周辺で散策を楽しみました。自然との接触から得られるリフレッシュ効果について学んだことがあり、今日もその恩恵を受けつつ、自分の思考プロセスを見つめ直す貴重な時間となりました。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false, "_ambiguous": "place(1/3)"}
+{"text": "研究室での作業が終わると、「論文執筆は自分自身と真剣に向き合う行為だ」という認識を新たにしました。今日も一歩ずつ進み、少しずつではありますが完成へ近づいている実感があります。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "夜遅くまで取り組んでいた文献調査で新たな疑問が浮上しました。「歴史的背景が現在の社会慣習形成に与える影響」について再検討が必要だと感じています。これについては明日、指導教官と相談することにします。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "先週からの作業を振り返り、「情報の質よりもその解釈や利用方法の方が重要である」ということを強く実感しました。今後の研究ではこの視点からも文献を見直すことが必要だと考えています。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "今日のセミナーでは、理論と実践の乖離について議論が行われた。特に、「知識とは何か」という問いを巡って意見が割れたのは興味深かった。専門家の立場から見るとき、知識は単なる情報の集積ではなく、その解釈や適用の範囲に依存するものであると指摘した者もいた。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "移動中の電車内で、ある論文の再読を行った。この研究では、文化間コミュニケーションにおける誤解のメカニズムが詳細に分析されている。しかし、自分の現在のテーマとの接点を見つけ出すのは難しい。それでも、新たな視点を導入するためには必要な作業だと自分自身を鼓舞する。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "先輩と面談した際、「研究の目的とは何か」という問いについて話しあった。彼は私の意見に一貫性があることに肯定的な反応を示していたが、同時に、それらがどのように結びついているのか明確に説明できるようになることが必要だとアドバイスしてくれた。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "図書館で古い資料を探している途中で、ある論文を見つけた。これは私が研究テーマとしている象徴性と社会的影響について述べているもので、新たな解釈の手がかりとなる可能性がある。「意味」と「解釈」の相互作用を考える上で非常に価値のある内容だと感じた。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "夕食後に思い立って散歩に出た。街を歩きながら、日々研究に取り組む自分自身について考えていた。大学院生活は孤独な時間が多いが、それは自己実現への道筋でもあると認識している。また、その孤独さもまた、思考や考察を深めるのに必要な要素だと信じている。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "昼食の後、友人とカフェで話をした。私たちの会話は研究テーマから始まり、それぞれが直面している困難について共有した。彼の研究は私とは異なる分野だが、そこで見られる課題は自分のものと共通点があると感じた。これは、問題解決における横断的アプローチを考慮する際の有用な視点かもしれない。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "深夜に研究室でデータ分析を行った。結果は予想通りではあったが、詳細を掘り下げるにつれ新たな洞察を得ることができた。「量」と「質」の両方からデータを見ることが、より深いつながりを明らかにするためには不可欠", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "引用された理論を検討しながら、今日の研究セミナーでの議論が自分の中でどのように繋がっているのか整理する必要があると感じた。教授の指摘に対して、自分がどのような反応を見せたか反省点も含めてメモにまとめている。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "図書館で見つけた古本から得られた知識は実際の研究に活用できるかもしれないという予感。今日見た一冊には、重要な情報源が含まれていたと確信している。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "午後は文献調査のためパソコンに向かっていた。ネットワークが不安定だったせいでデータをダウンロードするのに時間がかかり、作業効率が落ちてしまった。これについてはまた対策を考える必要があるだろう。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "先輩との会話の中で感じたのは、研究の道は孤独ではあるものの、時に小さな交流から新しい視点を得られるということだ。今日も彼とのやり取りで自分の考えを深めることができた。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "バスに乗っているとき、ふと視線が合った隣の人との微かなコミュニケーションは不思議な安心感を与えてくれた。研究室以外の場所でも人と接することで、自分の中に新しいエネルギーが生まれるのかもしれない。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "夕食の後、研究計画の再検討を始めた。これまではこの問題をAという視点でみていたが、もしBという観点から見るとどうなるか考えてみたいと考えている。これは今後の作業に大きな影響を与えそうだ。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "今日の天候は特に晴れていたせいか、外にいる時間が長く感じられた。自然との触れ合いもまた心を整えるのに必要な要素だと感じる。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "夜遅くまで作業が続いていたが、自分の限界を考えつつ休憩時間を上手に活用したつもりだ。明日へのエネルギーはまだ残っているはずなので、今日はこれでしっかりと休みに入ろうと思う。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "今日のセミナーでは、アーサー・ケントが提唱する「公共性」について論じられていたが、私の研究テーマとも関連性が高いと感じた。彼の理論は確かに、現代社会における個人の役割を再評価するうえで重要な視点となるかもしれない。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "文献調査中に見つけた古いエッセイが非常に興味深く、自分の論文にも活かせそうな予感がしている。著者は、社会構築主義を用いて市民参加について詳細に分析していた。引用部分は後ほどメモにまとめなければならない。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "友人とのランチで、彼の仕事環境やキャリアプランについて話した。彼は最近、ストレスを感じているらしく、私も自分の研究生活におけるプレッシャーについて共感しながら話を聞くことができた。心から支えあう関係性を大切にしたいと思う。", "persona": "大学院生（研究と生活が地続き）", "others": true, "secret": false, "place": false, "_ambiguous": "others(2/3)"}
+{"text": "地下鉄に乗っているとき、突然雨が降り出し、人々の様子や表情が変化する光景を見ていて興味深かった。普段は無視されがちな街の風景も研究の一部になる気がしてくる。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "午後の作業で文献整理を進めた結果、新たな比較対象となる論文を見つけることができた。これが自分の研究に大きな影響を与える可能性があると考えている。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "昨日から始まったプログラミング学習について、思った以上に時間がかかりそうだ。しかし、データ分析のためには必要不可欠なスキルであることは認識している。少しずつ進めていきたいと思う。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
+{"text": "授業後のティータイムで教授と雑談をしていたら、意外にも自分の研究テーマに対する深い理解を持っていることがわかった。今後はもっと積極的に意見を求めることにしようと考えている。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false, "_ambiguous": "others(1/3)"}
+{"text": "夜遅くまで論文の読み込みをしていて疲れが溜まった。しかし新しい視点を見つけることができたときの喜びや達成感を考えると、この苦労もまた自分の研究にとって大切な一歩だと自分自身を鼓舞する必要があると感じる。", "persona": "大学院生（研究と生活が地続き）", "others": false, "secret": false, "place": false}
