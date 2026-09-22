@@ -106,6 +106,29 @@ SEMANTIC_QUESTIONS = {
 _KEYMAP = {"秘密情報": "secret"}
 
 
+# 上から順に試し、**手元にあるものを使う**。無ければ意味の判定は諦める（形のチェックは残る）。
+MODEL_LADDER = [
+    "mlx-community/Qwen2.5-32B-Instruct-4bit",   # 無駄な印 2%（既定・Mac Studio）
+    "mlx-community/Qwen2.5-7B-Instruct-4bit",    # 無駄な印 20%（MacBook 向け）
+    "mlx-community/Qwen2.5-3B-Instruct-4bit",    # 最後の手段
+]
+
+
+def _pick_model() -> str:
+    """手元にすでに落ちているモデルを選ぶ。**その場で大きいものを落としに行かない。**"""
+    import os
+    from pathlib import Path
+
+    if forced := os.environ.get("SYSONE_MODEL"):
+        return forced
+    cache = Path.home() / ".cache" / "huggingface" / "hub"
+    for name in MODEL_LADDER:
+        slug = "models--" + name.replace("/", "--")
+        if (cache / slug).exists():
+            return name
+    return MODEL_LADDER[-1]
+
+
 def check_meaning(text: str) -> list[str]:
     """意味で見つける。判定できないときは黙って諦める（形のチェックは残る）。"""
     import os
@@ -113,7 +136,11 @@ def check_meaning(text: str) -> list[str]:
     # 実測（本人96件・2026-09-21）: 取りこぼし0を保ったときの無駄な印
     #   3B+当て板 74% / 7B 20% / **32B 2%**
     # 1日の候補は20件程度なので、32B（1判定0.8秒）でも十分間に合う。
-    os.environ.setdefault("SYSONE_MODEL", "mlx-community/Qwen2.5-32B-Instruct-4bit")
+    #
+    # ★ただし 32B は約18GB。**メモリの小さい機械（MacBook）では動かない。**
+    #   会場に持ち出したときに 18GB のダウンロードが始まると目も当てられないので、
+    #   手元に無ければ**すでに持っているモデルへ静かに落ちる**（2026-09-23）。
+    os.environ.setdefault("SYSONE_MODEL", _pick_model())
     os.environ.pop("SYSONE_ADAPTER", None)
 
     try:

@@ -29,6 +29,7 @@
 
 - [docs/roadmap.md](docs/roadmap.md) — **やりたいこと・マイルストーン・分からないこと・検証マトリクス**
 - [docs/findings.md](docs/findings.md) — 分かったこと（概要）
+- [docs/event-journey.md](docs/event-journey.md) — イベント当日（9/29）の整合性と制約
 - [docs/two-machines.md](docs/two-machines.md) — 2台目の Mac の使い方（いつでも切れる形にする）
 - [docs/wired-recovery.md](docs/wired-recovery.md) — 有線での書き込み・復旧（調査済み・いまは保留）
 - [docs/firmware-build.md](docs/firmware-build.md) — ファームを自分でビルドする（P0・実機には書き込まない）
