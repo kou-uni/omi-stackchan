@@ -63,6 +63,7 @@ python pipeline/night.py 2026-09-22 --speak   # 実機に喋らせる
 # ⑦ 朝、今日やることを返させる
 python pipeline/morning.py                    # 台本を見るだけ
 python pipeline/morning.py --speak            # 実機に喋らせる
+python pipeline/morning.py --to-slack         # Slack へ（外に出る唯一の工程）
 ```
 
 ## 夜の対話（night.py）

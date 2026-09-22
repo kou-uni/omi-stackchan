@@ -21,6 +21,15 @@
 
 **安全領域から出るもの**
 実機に送るのは読み上げる文だけ。送る前に関所を通す。
+
+**⑦ Slack へ出すとき（--to-slack）**
+ここが**唯一、情報が手元の外に出る工程**。だから出口にもゲートを置く:
+  1. 送るのは**読み上げる文だけ**（要約も文字起こしも音声も送らない）
+  2. 送る前に**関所を通す**（形・実名・秘密情報）
+  3. **`hermes send` を使う。** 説明文に「no LLM, no agent loop」とあり、
+     実装を読んでも読み込むのは設定・認証・宛先の解決だけだった（2026-09-23 検証）。
+     **渡した文が LLM に読まれることはない**
+  4. 送った内容は手元にも残す（何を外に出したか、後から分かるように）
 """
 from __future__ import annotations
 
@@ -160,10 +169,40 @@ def speak(script: str) -> None:
         print(f"実機に届きませんでした（{type(exc).__name__}）")
 
 
+def send_to_slack(text: str, target: str) -> None:
+    """Hermes 経由で Slack へ。**外に出るのはここだけ。**
+
+    `hermes send` は「no LLM, no agent loop」と明記されており、実装上も
+    設定・認証・宛先の解決しか読み込まない（2026-09-23 検証）。
+    **文はそのまま転送されるだけで、LLM には渡らない。**
+    """
+    hermes = Path.home() / ".hermes" / "hermes-agent" / "venv" / "bin" / "python"
+    if not hermes.exists():
+        print("Hermes が見つかりません")
+        return
+
+    # ★出したものは手元にも残す（何を外に出したか、後から分かるように）
+    log = LIFELOG_HOME / "sent-outside.log"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    with log.open("a") as f:
+        f.write(f"{datetime.now().isoformat(timespec='seconds')}\t{target}\t{text}\n")
+
+    r = subprocess.run(
+        [str(hermes), "-m", "hermes_cli.main", "send", "--to", target,
+         "--subject", "今日やること", text, "--json"],
+        capture_output=True, text=True, timeout=120,
+    )
+    if r.returncode == 0:
+        print(f"Slack へ送りました（{target}）")
+    else:
+        print(f"Slack への送信に失敗: {r.stderr.strip()[:200]}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--speak", action="store_true")
-    ap.add_argument("--to-hermes", action="store_true", help="Hermes 経由で Slack へ（⑦・未実装）")
+    ap.add_argument("--to-slack", action="store_true", help="Hermes 経由で Slack へ（⑦）")
+    ap.add_argument("--slack-target", default="slack:agents", help="送り先（既定: slack:agents）")
     args = ap.parse_args()
 
     script = build()
@@ -180,8 +219,8 @@ def main() -> None:
 
     if args.speak:
         speak(script)
-    if args.to_hermes:
-        print("\n⑦ Hermes 連携はこれから。**外に出るのはここが初めて**なので、出口ゲートを先に作る")
+    if args.to_slack:
+        send_to_slack(spoken, args.slack_target)
 
 
 if __name__ == "__main__":
