@@ -9,7 +9,11 @@
 
 > 「僕の1日の声は、このMacから一歩も出ていない。それでもロボットは僕を知っている」
 
-姉妹プロジェクト: `stackchan-lab`（スタックチャン本体・DJ連携・会話サーバー）
+姉妹プロジェクト: `~/stackchan-lab`（スタックチャン本体・DJ連携・会話サーバー・イベント当日の段取り）
+
+- 当日の口上と持ち物は **stackchan-lab 側**にある（`event/privacy-notice.md` / `event/checklist.md`）
+- こちらの判断の経緯は [docs/event-journey.md](docs/event-journey.md)
+- **リポジトリの統合はイベント（9/29）後。** 締切直前に土台を動かさない
 
 ---
 
