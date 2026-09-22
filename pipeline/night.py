@@ -80,15 +80,44 @@ def check_before_speaking(text: str) -> list[str]:
     return check(text) + check_meaning(text)
 
 
+def device_present() -> bool | None:
+    """実機が繋がっているか。分からなければ None。
+
+    ★2026-09-22: 電源の入っていない実機に送っても `ok: true` が返る。
+      **送れたことと、鳴ったことは別。** 送る前にここで見る。
+    """
+    key = STAGE_KEY_FILE.read_text().strip() if STAGE_KEY_FILE.exists() else ""
+    try:
+        with urllib.request.urlopen(f"{STAGE_URL}/api/state?k={urllib.parse.quote(key)}", timeout=10) as r:
+            return json.loads(r.read()).get("device")
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def speak(script: str) -> None:
     # 鍵は本文ではなく URL の ?k= で渡す（stackchan-lab の stage.py の作り）
     key = STAGE_KEY_FILE.read_text().strip() if STAGE_KEY_FILE.exists() else ""
     body = json.dumps({"script": script}).encode()
     url = f"{STAGE_URL}/api/speak?k={urllib.parse.quote(key)}"
     req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
+    present = device_present()
+    if present is False:
+        print("\n⚠ 実機が繋がっていません（電源が入っていないか、離れています）。")
+        print("  送っても音は鳴りません。台本は上に出ているので、あとで流せます。")
+        return
+    if present is None:
+        print("\n⚠ 実機の在・不在が確認できません（スタックチャン側が古いか、応答なし）。")
+        print("  送りますが、**鳴ったかどうかは保証できません**。")
+
     try:
         with urllib.request.urlopen(req, timeout=120) as r:
-            print(f"実機: {json.loads(r.read())}")
+            res = json.loads(r.read())
+            if res.get("device") is True:
+                print(f"実機が受け取りました（{res.get('lines')}行 / {res.get('chars')}文字）")
+            elif res.get("device") is False:
+                print("⚠ 送信はできましたが、**実機が居ないので鳴っていません**")
+            else:
+                print(f"送信しました（鳴ったかは未確認）: {res}")
     except Exception as exc:  # noqa: BLE001
         print(f"実機に届きませんでした（{type(exc).__name__}）。台本は上に出ています。")
         print(f"  スタックチャン側を先に起動してください（{STAGE_URL}）:")
